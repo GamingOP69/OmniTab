@@ -11,20 +11,40 @@ import java.util.TreeMap;
 
 public class SortingRegistry {
 
-    private final Map<Integer, String> groups = new TreeMap<>();
+    private final Map<Integer, Group> groups = new TreeMap<>();
 
-    public void registerGroup(int priority, String permission) {
-        groups.put(priority, permission);
+    public static class Group {
+        public final String name;
+        public final int priority;
+        public final String permission;
+        public final String prefix;
+        public final String suffix;
+
+        public Group(String name, int priority, String permission, String prefix, String suffix) {
+            this.name = name;
+            this.priority = priority;
+            this.permission = permission;
+            this.prefix = ChatColor.translateAlternateColorCodes('&', prefix);
+            this.suffix = ChatColor.translateAlternateColorCodes('&', suffix);
+        }
+    }
+
+    public void registerGroup(String name, int priority, String permission, String prefix, String suffix) {
+        groups.put(priority, new Group(name, priority, permission, prefix, suffix));
     }
 
     public void applySorting(Player player) {
         Scoreboard sb = player.getScoreboard();
-        if (sb == null) sb = Bukkit.getScoreboardManager().getMainScoreboard();
+        if (sb == null || sb == Bukkit.getScoreboardManager().getMainScoreboard()) {
+            sb = Bukkit.getScoreboardManager().getMainScoreboard();
+        }
 
-        int priority = getPriority(player);
+        Group group = getGroup(player);
+        int priority = group.priority;
+        
+        // Z-prefix ensures it sorts properly in alphabetical order (OT_001_...)
         String teamName = "OT_" + String.format("%03d", priority) + "_" + player.getName();
         
-        // Truncate team name to 16 chars for legacy versions if needed
         if (teamName.length() > 16 && Bukkit.getBukkitVersion().contains("1.8")) {
             teamName = teamName.substring(0, 16);
         }
@@ -35,22 +55,25 @@ public class SortingRegistry {
         }
         
         if (!team.hasEntry(player.getName())) {
-            // Remove from old teams first
-            for (Team oldTeam : sb.getTeams()) {
-                if (oldTeam.getName().startsWith("OT_") && oldTeam.hasEntry(player.getName())) {
-                    oldTeam.removeEntry(player.getName());
-                }
-            }
+            clearOldTeams(sb, player);
             team.addEntry(player.getName());
         }
     }
 
-    private int getPriority(Player player) {
-        for (Map.Entry<Integer, String> entry : groups.entrySet()) {
-            if (player.hasPermission(entry.getValue())) {
-                return entry.getKey();
+    private void clearOldTeams(Scoreboard sb, Player player) {
+        for (Team oldTeam : sb.getTeams()) {
+            if (oldTeam.getName().startsWith("OT_") && oldTeam.hasEntry(player.getName())) {
+                oldTeam.removeEntry(player.getName());
             }
         }
-        return 999;
+    }
+
+    public Group getGroup(Player player) {
+        for (Group group : groups.values()) {
+            if (player.hasPermission(group.permission)) {
+                return group;
+            }
+        }
+        return new Group("default", 999, "omnitab.default", "", "");
     }
 }

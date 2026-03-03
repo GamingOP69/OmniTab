@@ -53,12 +53,14 @@ public class OmniTab extends JavaPlugin implements Listener {
 
         // Initialize Sorting Registry
         this.sortingRegistry = new SortingRegistry();
-        ConfigurationSection groups = getConfig().getConfigurationSection("sorting.groups");
-        if (groups != null) {
-            for (String key : groups.getKeys(false)) {
-                int priority = groups.getInt(key + ".priority");
-                String permission = groups.getString(key + ".permission");
-                sortingRegistry.registerGroup(priority, permission);
+        ConfigurationSection sortingGroups = getConfig().getConfigurationSection("sorting.groups");
+        if (sortingGroups != null) {
+            for (String key : sortingGroups.getKeys(false)) {
+                int priority = sortingGroups.getInt(key + ".priority");
+                String permission = sortingGroups.getString(key + ".permission");
+                String prefix = sortingGroups.getString(key + ".prefix", "");
+                String suffix = sortingGroups.getString(key + ".suffix", "");
+                sortingRegistry.registerGroup(key, priority, permission, prefix, suffix);
             }
         }
 

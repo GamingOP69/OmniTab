@@ -2,6 +2,8 @@ package com.omnitab.common.animation;
 
 import com.omnitab.api.TablistHandler;
 import com.omnitab.common.placeholder.PlaceholderRegistry;
+import com.omnitab.common.sort.SortingRegistry;
+import com.omnitab.common.hooks.VanishRegistry;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -63,13 +65,32 @@ public class AnimationEngine {
     }
 
     private void updateAll() {
+        SortingRegistry sortingRegistry = com.omnitab.core.OmniTab.getInstance().getSortingRegistry();
+        
         // Safe access to online players in async task
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            if (player == null || !player.isOnline()) continue;
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            if (viewer == null || !viewer.isOnline()) continue;
             
-            String header = buildString(player, headerTemplate);
-            String footer = buildString(player, footerTemplate);
-            handler.updateHeaderFooter(player, header, footer);
+            // 1. Update Header/Footer for the viewer
+            updateSingle(viewer);
+            
+            // 2. Update player list entries (Prefixes/Ping) for the viewer
+            for (Player target : Bukkit.getOnlinePlayers()) {
+                if (target == null || !target.isOnline()) continue;
+                if (vanishRegistry.isVanished(target) && !viewer.hasPermission("omnitab.vanish.see")) continue;
+
+                SortingRegistry.Group group = sortingRegistry.getGroup(target);
+                handler.updatePlayerEntry(viewer, target, group.prefix, group.suffix, getPing(target));
+            }
+        }
+    }
+
+    private int getPing(Player player) {
+        try {
+            Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
+            return (int) entityPlayer.getClass().getField("ping").get(entityPlayer);
+        } catch (Exception e) {
+            return 0;
         }
     }
 

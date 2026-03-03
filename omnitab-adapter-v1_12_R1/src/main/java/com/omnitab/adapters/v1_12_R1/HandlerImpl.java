@@ -45,11 +45,37 @@ public class HandlerImpl implements TablistHandler {
 
     @Override
     public void updatePlayerEntry(@NotNull Player viewer, @NotNull Player target, String prefix, String suffix, int ping) {
+        IChatBaseComponent displayName = IChatBaseComponent.ChatSerializer.a("{\"text\":\"" + prefix + target.getName() + suffix + "\"}");
+        
         PacketPlayOutPlayerInfo packet = new PacketPlayOutPlayerInfo(
-                PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_LATENCY, 
-                ((CraftPlayer) target).getHandle()
+                PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_DISPLAY_NAME, 
+                ((org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer) target).getHandle()
         );
-        ((CraftPlayer) viewer).getHandle().playerConnection.sendPacket(packet);
+
+        try {
+            Field bField = packet.getClass().getDeclaredField("b");
+            bField.setAccessible(true);
+            java.util.List<PacketPlayOutPlayerInfo.PlayerInfoData> list = (java.util.List<PacketPlayOutPlayerInfo.PlayerInfoData>) bField.get(packet);
+            
+            // Re-create the data with the display name for the first entry
+            if (!list.isEmpty()) {
+                PacketPlayOutPlayerInfo.PlayerInfoData data = list.get(0);
+                PacketPlayOutPlayerInfo.PlayerInfoData newData = new PacketPlayOutPlayerInfo.PlayerInfoData(
+                        data.a(), data.b(), data.c(), displayName);
+                list.set(0, newData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ((org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer) viewer).getHandle().playerConnection.sendPacket(packet);
+        
+        // Also update latency in a separate packet for simplicity or combine actions
+        PacketPlayOutPlayerInfo latencyPacket = new PacketPlayOutPlayerInfo(
+                PacketPlayOutPlayerInfo.EnumPlayerInfoAction.UPDATE_LATENCY,
+                ((org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer) target).getHandle()
+        );
+        ((org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer) viewer).getHandle().playerConnection.sendPacket(latencyPacket);
     }
 
     @Override
