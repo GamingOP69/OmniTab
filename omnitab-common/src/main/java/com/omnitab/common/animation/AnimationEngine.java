@@ -41,6 +41,11 @@ public class AnimationEngine {
         this.vanishRegistry = new VanishRegistry();
     }
 
+    public void clearTemplates() {
+        headerGroups.clear();
+        footerGroups.clear();
+    }
+
     public void setTemplates(String group, List<String> header, List<String> footer) {
         headerGroups.put(group, header);
         footerGroups.put(group, footer);
@@ -52,68 +57,79 @@ public class AnimationEngine {
     }
 
     public void start() {
-        int interval = plugin.getConfig().getInt("tablist.update_interval", 10);
+        int interval = plugin.getConfig().getInt("tablist.update_interval", 20);
+        // Sync task to fetch data safely
+        Bukkit.getScheduler().runTaskTimer(plugin, this::fetch, 0, interval);
+        // Async task to process strings and dispatch packets
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::tick, 0, interval);
+    }
+
+    private void fetch() {
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerData data = cache.computeIfAbsent(player.getUniqueId(), id -> new PlayerData(player));
+            data.online = true;
+            data.group = sortingRegistry.getGroup(player);
+            data.vanished = vanishRegistry.isVanished(player);
+            data.ping = getPing(player);
+            // Permissions for other players might change, but we'll fetch them here if needed
+        }
     }
 
     private void tick() {
         animationTick++;
         
-        // 1. Prepare data for all online players (O(N))
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            PlayerData data = cache.get(player.getUniqueId());
-            if (data == null) {
-                data = new PlayerData(player);
-                data.group = sortingRegistry.getGroup(player);
-                data.ping = getPing(player);
-                data.vanished = vanishRegistry.isVanished(player);
-                data.lastVanished = data.vanished;
-                cache.put(player.getUniqueId(), data);
-            }
-            
-            // Refresh metadata every 20 ticks
-            if (animationTick % 20 == 0) {
-                data.group = sortingRegistry.getGroup(player);
-                data.ping = getPing(player);
-                data.vanished = vanishRegistry.isVanished(player);
+        // 1. Process animations and placeholders (Async)
+        for (PlayerData data : cache.values()) {
+            Player player = Bukkit.getPlayer(data.uuid);
+            if (player == null || !player.isOnline()) {
+                data.online = false;
+                continue;
             }
 
-            // Always update display strings (potential animations)
-            data.lastHeader = buildString(player, headerGroups.getOrDefault(data.getGroupName(), headerGroups.get("default")));
-            data.lastFooter = buildString(player, footerGroups.getOrDefault(data.getGroupName(), footerGroups.get("default")));
-            data.fullDisplayName = data.group.prefix + player.getName() + data.group.suffix;
-
-            // Handle Vanish Visibility Toggles
-            if (data.vanished != data.lastVanished) {
-                for (Player viewer : Bukkit.getOnlinePlayers()) {
-                    if (!viewer.hasPermission("omnitab.vanish.see")) {
-                        handler.updateVisibility(viewer, player, !data.vanished);
-                    }
-                }
-                data.lastVanished = data.vanished;
-            }
+            data.header = buildString(player, headerGroups.getOrDefault(data.getGroupName(), headerGroups.get("default")));
+            data.footer = buildString(player, footerGroups.getOrDefault(data.getGroupName(), footerGroups.get("default")));
+            data.displayName = data.group.prefix + player.getName() + data.group.suffix;
         }
 
-        // 2. Dispatch updates to viewers (O(N))
+        // 2. Dispatch with Dirty Checking
         for (Player viewer : Bukkit.getOnlinePlayers()) {
             PlayerData viewerData = cache.get(viewer.getUniqueId());
             if (viewerData == null) continue;
 
-            // Send Header/Footer
-            handler.updateHeaderFooter(viewer, viewerData.lastHeader, viewerData.lastFooter);
+            // Header/Footer Dirty Check
+            if (!viewerData.header.equals(viewerData.lastHeader) || !viewerData.footer.equals(viewerData.lastFooter)) {
+                handler.updateHeaderFooter(viewer, viewerData.header, viewerData.footer);
+                viewerData.lastHeader = viewerData.header;
+                viewerData.lastFooter = viewerData.footer;
+            }
 
-            // Update visible entries for the viewer (O(V) where V is visible players)
+            // Tablist Entry Dirty Check
             for (PlayerData targetData : cache.values()) {
+                if (!targetData.online) continue;
                 Player target = Bukkit.getPlayer(targetData.uuid);
-                if (target == null || !target.isOnline()) {
-                    cache.remove(targetData.uuid);
-                    continue;
+                if (target == null) continue;
+
+                boolean canSee = !targetData.vanished || viewer.hasPermission("omnitab.vanish.see");
+                
+                // Visibility Toggle Check
+                if (canSee != targetData.isSeenBy(viewer.getUniqueId())) {
+                    handler.updateVisibility(viewer, target, canSee);
+                    targetData.setSeenBy(viewer.getUniqueId(), canSee);
                 }
 
-                if (targetData.vanished && !viewer.hasPermission("omnitab.vanish.see")) continue;
+                if (!canSee) continue;
 
-                handler.updatePlayerEntry(viewer, target, targetData.group.prefix, targetData.group.suffix, targetData.ping);
+                // Content Dirty Check
+                if (!targetData.displayName.equals(targetData.lastDisplayName) || targetData.ping != targetData.lastPing) {
+                    handler.updatePlayerEntry(viewer, target, targetData.group.prefix, targetData.group.suffix, targetData.ping);
+                }
             }
+        }
+
+        // Finalize state after all viewers processed
+        for (PlayerData data : cache.values()) {
+            data.lastDisplayName = data.displayName;
+            data.lastPing = data.ping;
         }
     }
 
@@ -147,11 +163,19 @@ public class AnimationEngine {
         private final UUID uuid;
         private SortingRegistry.Group group;
         private int ping;
+        private int lastPing;
         private boolean vanished;
-        private boolean lastVanished;
-        private String lastHeader;
-        private String lastFooter;
-        private String fullDisplayName;
+        private boolean online;
+        
+        private String header = "";
+        private String footer = "";
+        private String displayName = "";
+        
+        private String lastHeader = "";
+        private String lastFooter = "";
+        private String lastDisplayName = "";
+
+        private final Map<UUID, Boolean> visibilityMap = new ConcurrentHashMap<>();
 
         public PlayerData(Player player) {
             this.uuid = player.getUniqueId();
@@ -159,6 +183,14 @@ public class AnimationEngine {
 
         public String getGroupName() {
             return group != null ? group.name : "default";
+        }
+
+        public boolean isSeenBy(UUID viewer) {
+            return visibilityMap.getOrDefault(viewer, true);
+        }
+
+        public void setSeenBy(UUID viewer, boolean seen) {
+            visibilityMap.put(viewer, seen);
         }
     }
 }

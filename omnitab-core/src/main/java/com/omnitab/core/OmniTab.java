@@ -62,7 +62,7 @@ public class OmniTab extends JavaPlugin implements Listener {
 
         // Initialize Sorting Registry
         this.sortingRegistry = new SortingRegistry();
-        ConfigurationSection sortingGroups = getConfig().getConfigurationSection("sorting.groups");
+        ConfigurationSection sortingGroups = getConfig().getConfigurationSection("tablist.sorting.groups");
         if (sortingGroups != null) {
             for (String key : sortingGroups.getKeys(false)) {
                 int priority = sortingGroups.getInt(key + ".priority");
@@ -155,7 +155,7 @@ public class OmniTab extends JavaPlugin implements Listener {
         
         // Reload Sorting Groups
         sortingRegistry.clearGroups();
-        ConfigurationSection sortingGroups = getConfig().getConfigurationSection("sorting.groups");
+        ConfigurationSection sortingGroups = getConfig().getConfigurationSection("tablist.sorting.groups");
         if (sortingGroups != null) {
             for (String key : sortingGroups.getKeys(false)) {
                 int priority = sortingGroups.getInt(key + ".priority");
