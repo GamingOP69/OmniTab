@@ -1,8 +1,13 @@
 name: OmniTab
 version: '${project.version}'
 main: com.omnitab.core.OmniTab
-api-version: 1.13
 authors: [GamingOP69]
 description: Universal Cross-Version TAB Plugin
 website: https://github.com/GamingOP69/OmniTab
+
+commands:
+  omnitab:
+    description: Main command for OmniTab
+    aliases: [ot]
+    permission: omnitab.admin
 
