@@ -1,0 +1,7 @@
+# File di lingua italiana per OmniTab
+prefix: "&8[&eOmniTab&8] &r"
+no_permission: "&cNon hai il permesso di usare questo comando."
+config_reloaded: "&aConfigurazione e lingue ricaricate con successo!"
+unknown_command: "&cComando sconosciuto. Usa &7/omnitab &cper vedere i comandi disponibili."
+plugin_info: "&6OmniTab v%version% &e- Sviluppato da GamingOP69"
+available_commands: "&7Comandi disponibili: &f/omnitab reload"

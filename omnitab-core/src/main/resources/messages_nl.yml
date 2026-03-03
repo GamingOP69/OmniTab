@@ -1,0 +1,7 @@
+# Nederlands taalbestand voor OmniTab
+prefix: "&8[&eOmniTab&8] &r"
+no_permission: "&cJe hebt geen toestemming om dit commando te gebruiken."
+config_reloaded: "&aConfiguratie en talen zijn succesvol herladen!"
+unknown_command: "&cOnbekend commando. Gebruik &7/omnitab &com de beschikbare commando's te zien."
+plugin_info: "&6OmniTab v%version% &e- Ontwikkeld door GamingOP69"
+available_commands: "&7Beschikbare commando's: &f/omnitab reload"
