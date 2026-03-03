@@ -1,0 +1,7 @@
+# OmniTab Russian Language File
+prefix: "&8[&eOmniTab&8] &r"
+no_permission: "&cУ вас нет прав для использования этой команды."
+config_reloaded: "&aКонфигурация и языки были успешно перезагружены!"
+unknown_command: "&cНеизвестная команда. Используйте &7/omnitab &cдля просмотра доступных команд."
+plugin_info: "&6OmniTab v%version% &e- Разработано GamingOP69"
+available_commands: "&7Доступные команды: &f/omnitab reload"
