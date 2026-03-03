@@ -12,9 +12,8 @@ public class VanishRegistry {
     private final boolean genericVanish;
 
     public VanishRegistry() {
-        Plugin manager = Bukkit.getPluginManager();
-        this.essentialsVanish = manager.isPluginEnabled("Essentials");
-        this.cmiVanish = manager.isPluginEnabled("CMI");
+        this.essentialsVanish = Bukkit.getPluginManager().isPluginEnabled("Essentials");
+        this.cmiVanish = Bukkit.getPluginManager().isPluginEnabled("CMI");
         this.genericVanish = true; // Most vanish plugins use metadata 'vanished'
     }
 

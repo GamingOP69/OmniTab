@@ -77,7 +77,7 @@ public class OmniTab extends JavaPlugin implements Listener {
         this.vanishRegistry = new VanishRegistry();
 
         // Initialize Animation Engine
-        this.animationEngine = new AnimationEngine(this, tablistHandler);
+        this.animationEngine = new AnimationEngine(this, tablistHandler, sortingRegistry, permissionHook);
         
         // Load Default Templates
         this.animationEngine.setTemplates("default", 

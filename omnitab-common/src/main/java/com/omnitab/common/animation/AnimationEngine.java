@@ -2,6 +2,7 @@ package com.omnitab.common.animation;
 
 import com.omnitab.api.TablistHandler;
 import com.omnitab.common.placeholder.PlaceholderRegistry;
+import com.omnitab.common.hooks.PermissionHook;
 import com.omnitab.common.sort.SortingRegistry;
 import com.omnitab.common.hooks.VanishRegistry;
 import org.bukkit.Bukkit;
@@ -23,6 +24,8 @@ public class AnimationEngine {
     private final JavaPlugin plugin;
     private final TablistHandler handler;
     private final VanishRegistry vanishRegistry;
+    private final SortingRegistry sortingRegistry;
+    private final PermissionHook permissionHook;
     
     private final Map<String, List<String>> headerGroups = new ConcurrentHashMap<>();
     private final Map<String, List<String>> footerGroups = new ConcurrentHashMap<>();
@@ -30,10 +33,12 @@ public class AnimationEngine {
 
     private int animationTick = 0;
 
-    public AnimationEngine(JavaPlugin plugin, TablistHandler handler) {
+    public AnimationEngine(JavaPlugin plugin, TablistHandler handler, SortingRegistry sortingRegistry, PermissionHook permissionHook) {
         this.plugin = plugin;
         this.handler = handler;
-        this.vanishRegistry = new VanishRegistry();
+        this.sortingRegistry = sortingRegistry;
+        this.permissionHook = permissionHook;
+        this.vanishedRegistry = new VanishRegistry();
     }
 
     public void setTemplates(String group, List<String> header, List<String> footer) {
@@ -48,7 +53,6 @@ public class AnimationEngine {
 
     private void tick() {
         animationTick++;
-        SortingRegistry sortingRegistry = com.omnitab.core.OmniTab.getInstance().getSortingRegistry();
         
         // 1. Prepare data for all online players (O(N))
         for (Player player : Bukkit.getOnlinePlayers()) {
