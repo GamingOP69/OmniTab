@@ -1,0 +1,7 @@
+# OmniTab 日本語言語ファイル
+prefix: "&8[&eOmniTab&8] &r"
+no_permission: "&cこのコマンドを実行する権限がありません。"
+config_reloaded: "&a設定と言語ファイルが正常にリロードされました！"
+unknown_command: "&c不明なコマンドです。&7/omnitab &cで利用可能なコマンドを確認してください。"
+plugin_info: "&6OmniTab v%version% &e- GamingOP69 によって開発されました"
+available_commands: "&7利用可能なコマンド: &f/omnitab reload"

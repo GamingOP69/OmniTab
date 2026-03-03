@@ -1,0 +1,7 @@
+# OmniTab 中文语言文件
+prefix: "&8[&eOmniTab&8] &r"
+no_permission: "&c您没有权限使用此命令。"
+config_reloaded: "&a配置和语言已成功重载！"
+unknown_command: "&c未知命令。使用 &7/omnitab &c查看可用命令。"
+plugin_info: "&6OmniTab v%version% &e- 由 GamingOP69 开发"
+available_commands: "&7可用命令: &f/omnitab reload"
