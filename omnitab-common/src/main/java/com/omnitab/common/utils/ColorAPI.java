@@ -11,6 +11,9 @@ import java.util.regex.Pattern;
  */
 public class ColorAPI {
 
+    private static final Pattern HEX_PATTERN = Pattern.compile("&#([A-Fa-f0-9]{6})");
+    private static final Pattern GRADIENT_PATTERN = Pattern.compile("<(#[A-Fa-f0-9]{6})>(.*?)</(#[A-Fa-f0-9]{6})>");
+
     /**
      * Translates color codes, including hex and gradients.
      * @param message The message to translate.

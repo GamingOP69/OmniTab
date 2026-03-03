@@ -53,11 +53,6 @@ public class AnimationEngine {
         footerGroups.put(group, footer);
     }
 
-    public void clearTemplates() {
-        headerGroups.clear();
-        footerGroups.clear();
-    }
-
     public void start() {
         int interval = plugin.getConfig().getInt("tablist.update_interval", 20);
         // Sync task to fetch data safely
