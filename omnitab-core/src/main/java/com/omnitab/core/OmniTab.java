@@ -201,28 +201,43 @@ public class OmniTab extends JavaPlugin implements Listener {
 
     private boolean setupAdapter() {
         String pkg = Bukkit.getServer().getClass().getPackage().getName();
-        String[] parts = pkg.split("\\.");
-        String nmsVersion = parts.length >= 4 ? parts[3] : "";
         String bukkitVersion = Bukkit.getBukkitVersion();
+        
+        getLogger().info("Initializing version adapter...");
+        getLogger().info("Server Package: " + pkg);
+        getLogger().info("Bukkit Version: " + bukkitVersion);
+
+        String[] parts = pkg.split("\\.");
+        String nmsVersion = (parts.length >= 4) ? parts[3] : "";
 
         try {
+            // Priority 1: NMS Package Check (Legacy & 1.12)
             if (nmsVersion.equals("v1_8_R3") || bukkitVersion.contains("1.8.8")) {
                 tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_8_R3.HandlerImpl").newInstance();
-            } else if (nmsVersion.equals("v1_12_R1") || bukkitVersion.contains("1.12")) {
+                getLogger().info("Detected Legacy 1.8.8 Stack.");
+            } 
+            else if (nmsVersion.equals("v1_12_R1") || bukkitVersion.contains("1.12")) {
                 tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_12_R1.HandlerImpl").newInstance();
-            } else if (bukkitVersion.contains("1.21")) {
+                getLogger().info("Detected 1.12.2 Stack.");
+            } 
+            // Priority 2: Modern Bukkit Version Check (1.21+)
+            else if (bukkitVersion.contains("1.21")) {
                 tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_21_R1.HandlerImpl").newInstance();
-            } else {
-                // Fallback for modern versions that follow 1.21+ patterns
-                if (bukkitVersion.contains("1.21") || bukkitVersion.contains("1.20")) {
-                     tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_21_R1.HandlerImpl").newInstance();
-                } else {
-                    return false;
-                }
+                getLogger().info("Detected Modern 1.21.x Stack.");
+            } 
+            // Priority 3: General Fallback for 1.20-1.21 range
+            else if (bukkitVersion.contains("1.20") || nmsVersion.startsWith("v1_20")) {
+                tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_21_R1.HandlerImpl").newInstance();
+                getLogger().info("Using 1.21 Adapter Fallback for " + bukkitVersion);
+            } 
+            else {
+                getLogger().severe("Unsupported server version detected: " + bukkitVersion);
+                return false;
             }
+            
             return tablistHandler != null;
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Failed to initialize adapter for version: " + bukkitVersion, e);
+            getLogger().log(Level.SEVERE, "Fatal error during adapter initialization: " + bukkitVersion, e);
             return false;
         }
     }
