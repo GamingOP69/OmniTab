@@ -15,28 +15,53 @@ public class OmniTabCommand implements CommandExecutor {
         String prefix = lm.getMessage("prefix");
 
         if (args.length == 0 || args[0].equalsIgnoreCase("help")) {
-            sender.sendMessage(ChatColor.DARK_GRAY + "§m----------------------------------------");
-            sender.sendMessage(ChatColor.GOLD + "  OmniTab Universal v" + OmniTab.getInstance().getDescription().getVersion());
-            sender.sendMessage(ChatColor.GRAY + "  Developed by " + ChatColor.WHITE + "GamingOP");
-            sender.sendMessage("");
-            sender.sendMessage(ChatColor.YELLOW + "  /omnitab reload " + ChatColor.GRAY + "- Reloads configuration & languages");
-            sender.sendMessage(ChatColor.YELLOW + "  /omnitab help   " + ChatColor.GRAY + "- Displays this help menu");
-            sender.sendMessage(ChatColor.DARK_GRAY + "§m----------------------------------------");
+            sendHelp(sender);
             return true;
         }
 
-        if (args[0].equalsIgnoreCase("reload")) {
-            if (!sender.hasPermission("omnitab.admin")) {
-                sender.sendMessage(prefix + lm.getMessage("no_permission"));
-                return true;
-            }
-            
-            OmniTab.getInstance().reloadPlugin();
-            sender.sendMessage(prefix + lm.getMessage("config_reloaded"));
-            return true;
+        switch (args[0].toLowerCase()) {
+            case "reload":
+                if (!sender.hasPermission("omnitab.admin")) {
+                    sender.sendMessage(prefix + lm.getMessage("no_permission"));
+                    return true;
+                }
+                OmniTab.getInstance().reloadPlugin();
+                sender.sendMessage(prefix + lm.getMessage("config_reloaded"));
+                break;
+
+            case "debug":
+                if (!sender.hasPermission("omnitab.admin")) {
+                    sender.sendMessage(prefix + lm.getMessage("no_permission"));
+                    return true;
+                }
+                boolean currentDebug = OmniTab.getInstance().getConfig().getBoolean("settings.debug_mode", false);
+                OmniTab.getInstance().getConfig().set("settings.debug_mode", !currentDebug);
+                OmniTab.getInstance().saveConfig();
+                sender.sendMessage(prefix + "§7Debug mode is now " + (!currentDebug ? "§aEnabled" : "§cDisabled"));
+                break;
+
+            case "version":
+                sender.sendMessage(prefix + "§7Running OmniTab §f" + OmniTab.getInstance().getDescription().getVersion());
+                sender.sendMessage(prefix + "§7Developed and Maintained by §6GamingOP");
+                break;
+
+            default:
+                sender.sendMessage(prefix + lm.getMessage("unknown_command"));
+                break;
         }
 
-        sender.sendMessage(prefix + lm.getMessage("unknown_command"));
-        return false;
+        return true;
+    }
+
+    private void sendHelp(CommandSender sender) {
+        sender.sendMessage("§8§m----------------------------------------");
+        sender.sendMessage("§6§lOmniTab Universal §7v" + OmniTab.getInstance().getDescription().getVersion());
+        sender.sendMessage("§7Developed by §fGamingOP");
+        sender.sendMessage("");
+        sender.sendMessage("§e/omnitab reload §7- Reload configuration");
+        sender.sendMessage("§e/omnitab debug  §7- Toggle debug mode");
+        sender.sendMessage("§e/omnitab version §7- Show version info");
+        sender.sendMessage("§e/omnitab help    §7- Display this menu");
+        sender.sendMessage("§8§m----------------------------------------");
     }
 }

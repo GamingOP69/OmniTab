@@ -67,6 +67,14 @@
                                     <shadedPattern>com.omnitab.core.metrics</shadedPattern>
                                 </relocation>
                             </relocations>
+                            <filters>
+                                <filter>
+                                    <artifact>org.bstats:*</artifact>
+                                    <excludes>
+                                        <exclude>org/bstats/bukkit/Metrics.class</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
                         </configuration>
                     </execution>
                 </executions>
