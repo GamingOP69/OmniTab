@@ -17,6 +17,13 @@ public class VanishRegistry {
         this.genericVanish = true; // Most vanish plugins use metadata 'vanished'
     }
 
+    public java.util.List<String> getVanishPlugins() {
+        java.util.List<String> plugins = new java.util.ArrayList<>();
+        if (essentialsVanish) plugins.add("Essentials");
+        if (cmiVanish) plugins.add("CMI");
+        return plugins;
+    }
+
     public boolean isVanished(Player player) {
         if (player == null) return false;
 
