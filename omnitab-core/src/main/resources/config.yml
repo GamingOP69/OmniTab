@@ -1,0 +1,26 @@
+# OmniTab Main Configuration
+
+settings:
+  check_for_updates: true
+  metrics_enabled: true
+  debug_mode: false
+
+tablist:
+  header:
+    - "&e&lOmniTab &7- &f%server_version%"
+    - "&7Online: &f%online_players%&7/&f%max_players%"
+  footer:
+    - "&bJoin our Discord: &fdiscord.gg/omnitab"
+  
+  sorting:
+    groups:
+      admin:
+        priority: 1
+        permission: "omnitab.admin"
+        prefix: "&c[Admin] "
+      default:
+        priority: 100
+        permission: "omnitab.default"
+        prefix: "&7"
+
+  update_interval: 20 # Every second

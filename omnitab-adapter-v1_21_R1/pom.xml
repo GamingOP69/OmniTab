@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.omnitab</groupId>
+        <artifactId>omnitab-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>omnitab-adapter-v1_21_R1</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.omnitab</groupId>
+            <artifactId>omnitab-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Paper/Spigot 1.21.x NMS (Assuming locally available or using paperweight for Mojang maps) -->
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot</artifactId>
+            <version>${spigot.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,17 @@
+# OmniTab Animations
+# Define frames for headers, footers, and prefixes
+
+animations:
+  rainbow_header:
+    update_interval: 2
+    frames:
+      - "<gradient:red:blue>OmniTab</gradient>"
+      - "<gradient:blue:green>OmniTab</gradient>"
+      - "<gradient:green:red>OmniTab</gradient>"
+  
+  ping_pulse:
+    update_interval: 10
+    frames:
+      - "&a●"
+      - "&2●"
+      - "&a●"

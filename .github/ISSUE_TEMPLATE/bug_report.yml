@@ -1,0 +1,46 @@
+name: Bug Report
+description: File a report to help us improve OmniTab
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: version
+    attributes:
+      label: Minecraft Version
+      description: What version of Minecraft are you using?
+      placeholder: e.g., 1.21.1
+    validations:
+      required: true
+  - type: input
+    id: server_software
+    attributes:
+      label: Server Software
+      description: What server software are you using?
+      placeholder: e.g., Paper, Spigot, Purpur
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Please provide any relevant console logs or stack traces.
+      render: java
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checkboxes
+      options:
+        - label: I have checked the latest dev build to see if the bug still exists.
+          required: true
+        - label: I have searched for existing issues.
+          required: true
