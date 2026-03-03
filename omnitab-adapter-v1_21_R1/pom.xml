@@ -16,10 +16,9 @@
             <artifactId>omnitab-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Paper/Spigot 1.21.x NMS (Assuming locally available or using paperweight for Mojang maps) -->
         <dependency>
             <groupId>org.spigotmc</groupId>
-            <artifactId>spigot</artifactId>
+            <artifactId>spigot-api</artifactId>
             <version>${spigot.version}</version>
             <scope>provided</scope>
         </dependency>
