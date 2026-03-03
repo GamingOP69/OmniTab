@@ -49,4 +49,4 @@ OmniTab follows industry-standard security practices:
 OmniTab is released under the [MIT License](LICENSE).
 
 ---
-*Maintained by the OmniTab Development Team. Professional. Reliable. Elite.*
+*Developed and Maintained by GamingOP. Professional. Reliable. Elite.*

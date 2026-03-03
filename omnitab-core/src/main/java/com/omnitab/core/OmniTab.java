@@ -117,9 +117,9 @@ public class OmniTab extends JavaPlugin implements Listener {
         });
 
         getLogger().info("========================================");
-        getLogger().info("      OmniTab Universal v" + getDescription().getVersion());
-        getLogger().info("      Running on: " + Bukkit.getVersion());
-        getLogger().info("      Status: ELITE ARCHITECTURE ACTIVE");
+        getLogger().info("   OmniTab Universal v" + getDescription().getVersion());
+        getLogger().info("   Developed and Maintained by GamingOP");
+        getLogger().info("   Status: Operational - Universal Engine Active");
         getLogger().info("========================================");
     }
 

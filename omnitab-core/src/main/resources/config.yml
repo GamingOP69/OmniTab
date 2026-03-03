@@ -1,5 +1,4 @@
-# OmniTab: The Elite Universal Tablist System
-# Optimized for 1.8.8 - 1.21.x High-Performance Servers
+# OmniTab Main Configuration
 
 settings:
   language: "en"
@@ -8,38 +7,34 @@ settings:
   debug_mode: false
 
 tablist:
-  # Update interval in ticks (20 ticks = 1 second)
-  # Lower values = smoother animations but higher CPU usage.
-  update_interval: 20
-
+  update_interval: 10
   header:
-    - "<#FFD700>&lOmniTab</#FFD700> &7- &f%server_version%"
-    - "&7Ping: &f%player_ping%ms &7| &7Online: &a%online_players%&7/&c%max_players%"
+    - "&e&lOmniTab &7- &f%server_version%"
+    - " "
+    - "&7Ping: &f%player_ping%ms &7| &7Server: &f%online_players%/%max_players%"
+    - " "
   footer:
-    - ""
-    - "&bJoin our Community: &fdiscord.gg/omnitab"
-
-  # Group-specific tablist templates
+    - " "
+    - "&bJoin our Discord: &fdiscord.gg/omnitab"
+  
   groups:
     admin:
-      permission: "omnitab.admin"
       header:
-        - "<#FF4500>&lADMINISTRATION</#FF4500>"
-        - "&7System Status: &aOptimal"
+        - "&c&lSTAFF TABLIST"
+        - "&7You are in &cAdmin Mode"
       footer:
-        - "&8TPS: &f%server_tps% &8| &8RAM: &f%server_ram%"
-
-  # Sorting and Prefix/Suffix Configuration
+        - "&7TPS: &a%server_tps% &7| &7RAM: &f%server_ram%"
+  
   sorting:
     groups:
       owner:
         priority: 0
         permission: "omnitab.owner"
-        prefix: "&f&l[<#FFD700>Owner</#FFD700>] &f"
+        prefix: "&#FFD700[Owner] "
       admin:
         priority: 1
         permission: "omnitab.admin"
-        prefix: "&f&l[<#FF4500>Admin</##FF4500>] &f"
+        prefix: "&#FF4500[Admin] "
       default:
         priority: 100
         permission: "omnitab.default"
