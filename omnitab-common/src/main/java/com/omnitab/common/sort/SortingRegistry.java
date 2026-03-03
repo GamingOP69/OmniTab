@@ -24,8 +24,8 @@ public class SortingRegistry {
             this.name = name;
             this.priority = priority;
             this.permission = permission;
-            this.prefix = ChatColor.translateAlternateColorCodes('&', prefix);
-            this.suffix = ChatColor.translateAlternateColorCodes('&', suffix);
+            this.prefix = com.omnitab.common.utils.ColorAPI.colorize(prefix);
+            this.suffix = com.omnitab.common.utils.ColorAPI.colorize(suffix);
         }
     }
 

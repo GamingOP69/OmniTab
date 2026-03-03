@@ -24,10 +24,14 @@ tablist:
   
   sorting:
     groups:
+      owner:
+        priority: 0
+        permission: "omnitab.owner"
+        prefix: "&#FFD700[Owner] "
       admin:
         priority: 1
         permission: "omnitab.admin"
-        prefix: "&c[Admin] "
+        prefix: "&#FF4500[Admin] "
       default:
         priority: 100
         permission: "omnitab.default"

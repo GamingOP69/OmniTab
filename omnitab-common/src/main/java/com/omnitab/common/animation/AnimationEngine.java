@@ -117,7 +117,7 @@ public class AnimationEngine {
             builder.append(template.get(i));
             if (i < template.size() - 1) builder.append("\n");
         }
-        return PlaceholderRegistry.parse(player, builder.toString());
+        return com.omnitab.common.utils.ColorAPI.colorize(PlaceholderRegistry.parse(player, builder.toString()));
     }
 
     private static class PlayerData {
