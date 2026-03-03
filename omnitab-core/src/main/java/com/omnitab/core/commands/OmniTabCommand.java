@@ -28,9 +28,7 @@ public class OmniTabCommand implements CommandExecutor {
                 return true;
             }
             
-            OmniTab.getInstance().reloadConfig();
-            lm.loadLanguage(OmniTab.getInstance().getConfig().getString("settings.language", "en"));
-            
+            OmniTab.getInstance().reloadPlugin();
             sender.sendMessage(prefix + lm.getMessage("config_reloaded"));
             return true;
         }

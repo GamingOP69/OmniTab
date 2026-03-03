@@ -46,6 +46,11 @@ public class AnimationEngine {
         footerGroups.put(group, footer);
     }
 
+    public void clearTemplates() {
+        headerGroups.clear();
+        footerGroups.clear();
+    }
+
     public void start() {
         int interval = plugin.getConfig().getInt("tablist.update_interval", 10);
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::tick, 0, interval);

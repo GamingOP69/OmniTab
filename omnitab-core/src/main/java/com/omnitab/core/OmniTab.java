@@ -146,6 +146,48 @@ public class OmniTab extends JavaPlugin implements Listener {
         // Cleanup if needed
     }
 
+    public void reloadPlugin() {
+        reloadConfig();
+        
+        // Reload Language
+        languageManager.loadLanguage(getConfig().getString("settings.language", "en"));
+        
+        // Reload Sorting Groups
+        sortingRegistry.clearGroups();
+        ConfigurationSection sortingGroups = getConfig().getConfigurationSection("sorting.groups");
+        if (sortingGroups != null) {
+            for (String key : sortingGroups.getKeys(false)) {
+                int priority = sortingGroups.getInt(key + ".priority");
+                String permission = sortingGroups.getString(key + ".permission");
+                String prefix = sortingGroups.getString(key + ".prefix", "");
+                String suffix = sortingGroups.getString(key + ".suffix", "");
+                sortingRegistry.registerGroup(key, priority, permission, prefix, suffix);
+            }
+        }
+        
+        // Reload Animation Templates
+        animationEngine.clearTemplates();
+        animationEngine.setTemplates("default", 
+            getConfig().getStringList("tablist.header"),
+            getConfig().getStringList("tablist.footer")
+        );
+        ConfigurationSection groupSection = getConfig().getConfigurationSection("tablist.groups");
+        if (groupSection != null) {
+            for (String group : groupSection.getKeys(false)) {
+                animationEngine.setTemplates(group,
+                    groupSection.getStringList(group + ".header"),
+                    groupSection.getStringList(group + ".footer")
+                );
+            }
+        }
+        
+        // Force refresh for all players
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            sortingRegistry.applySorting(player);
+            animationEngine.updateSingle(player);
+        }
+    }
+
     private boolean setupAdapter() {
         String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
         try {

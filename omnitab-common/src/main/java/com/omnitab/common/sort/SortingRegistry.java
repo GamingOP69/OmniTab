@@ -33,6 +33,10 @@ public class SortingRegistry {
         groups.put(priority, new Group(name, priority, permission, prefix, suffix));
     }
 
+    public void clearGroups() {
+        groups.clear();
+    }
+
     public void applySorting(Player player) {
         Scoreboard sb = player.getScoreboard();
         if (sb == null || sb == Bukkit.getScoreboardManager().getMainScoreboard()) {
