@@ -200,29 +200,29 @@ public class OmniTab extends JavaPlugin implements Listener {
     }
 
     private boolean setupAdapter() {
-        String version = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+        String pkg = Bukkit.getServer().getClass().getPackage().getName();
+        String[] parts = pkg.split("\\.");
+        String nmsVersion = parts.length >= 4 ? parts[3] : "";
+        String bukkitVersion = Bukkit.getBukkitVersion();
+
         try {
-            switch (version) {
-                case "v1_8_R3":
-                    tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_8_R3.HandlerImpl").newInstance();
-                    break;
-                case "v1_12_R1":
-                    tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_12_R1.HandlerImpl").newInstance();
-                    break;
-                case "v1_21_R1":
-                    tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_21_R1.HandlerImpl").newInstance();
-                    break;
-                default:
-                    // Soft version check fallback
-                    if (Bukkit.getBukkitVersion().contains("1.21")) {
-                        tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_21_R1.HandlerImpl").newInstance();
-                    } else {
-                        return false;
-                    }
+            if (nmsVersion.equals("v1_8_R3") || bukkitVersion.contains("1.8.8")) {
+                tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_8_R3.HandlerImpl").newInstance();
+            } else if (nmsVersion.equals("v1_12_R1") || bukkitVersion.contains("1.12")) {
+                tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_12_R1.HandlerImpl").newInstance();
+            } else if (bukkitVersion.contains("1.21")) {
+                tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_21_R1.HandlerImpl").newInstance();
+            } else {
+                // Fallback for modern versions that follow 1.21+ patterns
+                if (bukkitVersion.contains("1.21") || bukkitVersion.contains("1.20")) {
+                     tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_21_R1.HandlerImpl").newInstance();
+                } else {
+                    return false;
+                }
             }
             return tablistHandler != null;
         } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Adapter failure: " + version, e);
+            getLogger().log(Level.SEVERE, "Failed to initialize adapter for version: " + bukkitVersion, e);
             return false;
         }
     }
