@@ -212,7 +212,11 @@ public class OmniTab extends JavaPlugin implements Listener {
 
         try {
             // Priority 1: NMS Package Check (Legacy & 1.12)
-            if (nmsVersion.equals("v1_8_R3") || bukkitVersion.contains("1.8.8")) {
+            if (nmsVersion.equals("v1_7_R4") || bukkitVersion.contains("1.7.10")) {
+                tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_7_R4.HandlerImpl").newInstance();
+                getLogger().info("Detected Legacy 1.7.10 Stack.");
+            }
+            else if (nmsVersion.equals("v1_8_R3") || bukkitVersion.contains("1.8.8")) {
                 tablistHandler = (TablistHandler) Class.forName("com.omnitab.adapters.v1_8_R3.HandlerImpl").newInstance();
                 getLogger().info("Detected Legacy 1.8.8 Stack.");
             } 
