@@ -57,6 +57,9 @@ public class SortingRegistry {
         if (team == null) {
             team = sb.registerNewTeam(teamName);
         }
+
+        team.setPrefix(group.prefix);
+        team.setSuffix(group.suffix);
         
         if (!team.hasEntry(player.getName())) {
             clearOldTeams(sb, player);

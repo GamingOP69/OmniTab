@@ -32,6 +32,8 @@ public class AnimationEngine {
     private final Map<UUID, PlayerData> cache = new ConcurrentHashMap<>();
 
     private int animationTick = 0;
+    private org.bukkit.scheduler.BukkitTask fetchTask;
+    private org.bukkit.scheduler.BukkitTask tickTask;
 
     public AnimationEngine(JavaPlugin plugin, TablistHandler handler, SortingRegistry sortingRegistry, PermissionHook permissionHook) {
         this.plugin = plugin;
@@ -59,9 +61,15 @@ public class AnimationEngine {
     public void start() {
         int interval = plugin.getConfig().getInt("tablist.update_interval", 20);
         // Sync task to fetch data safely
-        Bukkit.getScheduler().runTaskTimer(plugin, this::fetch, 0, interval);
+        this.fetchTask = Bukkit.getScheduler().runTaskTimer(plugin, this::fetch, 0, interval);
         // Async task to process strings and dispatch packets
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::tick, 0, interval);
+        this.tickTask = Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::tick, 0, interval);
+    }
+
+    public void stop() {
+        if (fetchTask != null) fetchTask.cancel();
+        if (tickTask != null) tickTask.cancel();
+        cache.clear();
     }
 
     private void fetch() {
@@ -127,7 +135,12 @@ public class AnimationEngine {
         }
 
         // Finalize state after all viewers processed
-        for (PlayerData data : cache.values()) {
+        for (java.util.Iterator<PlayerData> it = cache.values().iterator(); it.hasNext();) {
+            PlayerData data = it.next();
+            if (!data.online) {
+                it.remove();
+                continue;
+            }
             data.lastDisplayName = data.displayName;
             data.lastPing = data.ping;
         }

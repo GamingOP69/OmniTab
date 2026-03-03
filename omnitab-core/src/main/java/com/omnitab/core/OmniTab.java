@@ -142,9 +142,17 @@ public class OmniTab extends JavaPlugin implements Listener {
         }
     }
 
+    @Override
+    public void onDisable() {
+        if (animationEngine != null) {
+            animationEngine.stop();
+        }
+        getLogger().info("OmniTab has been safely disabled.");
+    }
+
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        // Cleanup if needed
+        // Player data will be flagged as offline in the next tick and removed
     }
 
     public void reloadPlugin() {
