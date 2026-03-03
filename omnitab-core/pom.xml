@@ -69,8 +69,12 @@
                             </relocations>
                             <filters>
                                 <filter>
-                                    <artifact>org.bstats:*</artifact>
+                                    <artifact>*:*</artifact>
                                     <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
                                         <exclude>org/bstats/bukkit/Metrics.class</exclude>
                                     </excludes>
                                 </filter>
