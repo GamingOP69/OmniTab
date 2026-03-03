@@ -41,7 +41,7 @@ public class OmniTab extends JavaPlugin implements Listener {
         languageManager.loadLanguage(getConfig().getString("settings.language", "en"));
 
         // bStats Integration
-        int pluginId = 20563; // Actual ID would be assigned on Spigot upload
+        int pluginId = 29876;
         Metrics metrics = new Metrics(this, pluginId);
         
         metrics.addCustomChart(new SimplePie("active_language", () -> 
