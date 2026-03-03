@@ -58,8 +58,9 @@ public class SortingRegistry {
             team = sb.registerNewTeam(teamName);
         }
 
-        team.setPrefix(group.prefix);
-        team.setSuffix(group.suffix);
+        // We ONLY use teams for sorting (alphabetical order). 
+        // Setting prefix/suffix here causes interference with chat/join/death messages.
+        // The Tablist prefix/suffix is handled via PlayerInfo packets in the AnimationEngine.
         
         if (!team.hasEntry(player.getName())) {
             clearOldTeams(sb, player);
