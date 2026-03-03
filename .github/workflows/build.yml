@@ -25,8 +25,18 @@ jobs:
     - name: Build with Maven
       run: mvn clean package --file pom.xml
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+    - name: Get Version
+      id: get_version
+      run: echo "VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_OUTPUT
+
+    - name: Create Release
+      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+      uses: softprops/action-gh-release@v2
       with:
-        name: OmniTab-Universal
-        path: omnitab-core/target/omnitab-core-*.jar
+        tag_name: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || format('v{0}-latest', steps.get_version.outputs.VERSION) }}
+        name: ${{ startsWith(github.ref, 'refs/tags/v') && format('Release {0}', github.ref_name) || format('OmniTab v{0} (Latest Build)', steps.get_version.outputs.VERSION) }}
+        files: omnitab-core/target/omnitab-core-*.jar
+        draft: false
+        prerelease: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
