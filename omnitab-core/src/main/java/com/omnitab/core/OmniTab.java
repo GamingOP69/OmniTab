@@ -103,18 +103,31 @@ public class OmniTab extends JavaPlugin implements Listener {
         getCommand("omnitab").setExecutor(new OmniTabCommand());
         Bukkit.getPluginManager().registerEvents(this, this);
 
-        // Update Checker
-        UpdateChecker checker = new UpdateChecker(this, 123456);
-        checker.check().thenAccept(latest -> {
-            if (checker.isNewer(this.getDescription().getVersion(), latest)) {
-                getLogger().warning("====================================================");
-                getLogger().warning("OmniTab UPDATE AVAILABLE!");
-                getLogger().warning("Current: " + getDescription().getVersion());
-                getLogger().warning("Latest:  " + latest);
-                getLogger().warning("Download: https://www.spigotmc.org/resources/" + 123456);
-                getLogger().warning("====================================================");
-            }
-        });
+        // Update & Auto-Update System
+        if (getConfig().getBoolean("settings.check_for_updates", true)) {
+            UpdateChecker checker = new UpdateChecker(this, "GamingOP69/OmniTab");
+            checker.check().thenAccept(latest -> {
+                if (checker.isNewer(this.getDescription().getVersion(), latest)) {
+                    getLogger().warning("====================================================");
+                    getLogger().warning("OmniTab UPDATE AVAILABLE! Version: " + latest);
+                    
+                    if (getConfig().getBoolean("settings.auto_update", false)) {
+                        getLogger().info("Auto-update enabled. Downloading latest version...");
+                        checker.download(Bukkit.getConsoleSender()).thenAccept(success -> {
+                            if (success) {
+                                getLogger().info("Update downloaded successfully to 'plugins/update/'. It will be applied on next restart.");
+                            } else {
+                                getLogger().warning("Failed to download the update automatically.");
+                            }
+                        });
+                    } else {
+                        getLogger().warning("Download: https://github.com/GamingOP69/OmniTab/releases");
+                        getLogger().warning("Or run /omnitab update to download automatically.");
+                    }
+                    getLogger().warning("====================================================");
+                }
+            });
+        }
 
         getLogger().info("========================================");
         getLogger().info("   OmniTab Universal v" + getDescription().getVersion());
@@ -129,29 +142,6 @@ public class OmniTab extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             animationEngine.updateSingle(event.getPlayer());
         }, 5L);
-
-        // Notify admins of updates
-        if (getConfig().getBoolean("settings.check_for_updates", true)) {
-            UpdateChecker checker = new UpdateChecker(this, "GamingOP69/OmniTab");
-            checker.check().thenAccept(latest -> {
-                if (checker.isNewer(getDescription().getVersion(), latest)) {
-                    getLogger().info("A new version is available: " + latest);
-                    
-                    if (getConfig().getBoolean("settings.auto_update", false)) {
-                        getLogger().info("Auto-update enabled. Downloading latest version...");
-                        checker.download(Bukkit.getConsoleSender()).thenAccept(success -> {
-                            if (success) {
-                                getLogger().info("Update downloaded successfully to 'plugins/update/'. It will be applied on next restart.");
-                            } else {
-                                getLogger().warning("Failed to download the update.");
-                            }
-                        });
-                    } else {
-                        getLogger().info("Update manually via /omnitab update");
-                    }
-                }
-            });
-        }
     }
 
     @Override
