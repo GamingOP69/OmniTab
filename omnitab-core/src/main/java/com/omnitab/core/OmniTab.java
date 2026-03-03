@@ -40,9 +40,17 @@ public class OmniTab extends JavaPlugin implements Listener {
         languageManager.loadLanguage(getConfig().getString("settings.language", "en"));
 
         // bStats Integration
-        int pluginId = 29876;
+        int pluginId = 20563; // Actual ID would be assigned on Spigot upload
         Metrics metrics = new Metrics(this, pluginId);
-        metrics.addCustomChart(new SimplePie("server_version", () -> Bukkit.getBukkitVersion()));
+        
+        metrics.addCustomChart(new SimplePie("active_language", () -> 
+            getConfig().getString("settings.language", "en")));
+            
+        metrics.addCustomChart(new SimplePie("using_vanish_hook", () -> 
+            vanishRegistry != null && !vanishRegistry.getVanishPlugins().isEmpty() ? "Yes" : "No"));
+
+        metrics.addCustomChart(new SimplePie("using_placeholderapi", () -> 
+            Bukkit.getPluginManager().isPluginEnabled("PlaceholderAPI") ? "Yes" : "No"));
         
         // Version Detection & Adapter Setup
         if (!setupAdapter()) {
@@ -95,9 +103,15 @@ public class OmniTab extends JavaPlugin implements Listener {
         Bukkit.getPluginManager().registerEvents(this, this);
 
         // Update Checker
-        new UpdateChecker(this, 123456).getVersion(version -> {
-            if (!this.getDescription().getVersion().equals(version)) {
-                getLogger().warning("A new update is available: v" + version);
+        UpdateChecker checker = new UpdateChecker(this, 123456);
+        checker.check().thenAccept(latest -> {
+            if (checker.isNewer(this.getDescription().getVersion(), latest)) {
+                getLogger().warning("====================================================");
+                getLogger().warning("OmniTab UPDATE AVAILABLE!");
+                getLogger().warning("Current: " + getDescription().getVersion());
+                getLogger().warning("Latest:  " + latest);
+                getLogger().warning("Download: https://www.spigotmc.org/resources/" + 123456);
+                getLogger().warning("====================================================");
             }
         });
 
@@ -110,6 +124,17 @@ public class OmniTab extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
             animationEngine.updateSingle(event.getPlayer());
         }, 5L);
+
+        // Notify admins of updates
+        if (event.getPlayer().hasPermission("omnitab.admin")) {
+            UpdateChecker checker = new UpdateChecker(this, 123456);
+            checker.check().thenAccept(latest -> {
+                if (checker.isNewer(getDescription().getVersion(), latest)) {
+                    event.getPlayer().sendMessage("§8[§bOmniTab§8] §aA new update is available: §f" + latest);
+                    event.getPlayer().sendMessage("§7Update your plugin at spigotmc.org!");
+                }
+            });
+        }
     }
 
     @EventHandler

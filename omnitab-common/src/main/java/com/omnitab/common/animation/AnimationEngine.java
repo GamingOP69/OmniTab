@@ -11,18 +11,24 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * ELITE ANIMATION ENGINE
+ * Optimized for O(N) performance using PlayerData caching and async batching.
+ */
 public class AnimationEngine {
 
     private final JavaPlugin plugin;
-    private final Map<String, List<String>> animations = new ConcurrentHashMap<>();
-    private final Map<String, Integer> currentFrames = new ConcurrentHashMap<>();
     private final TablistHandler handler;
-
-    private final Map<String, List<String>> headerGroups = new HashMap<>();
-    private final Map<String, List<String>> footerGroups = new HashMap<>();
     private final VanishRegistry vanishRegistry;
+    
+    private final Map<String, List<String>> headerGroups = new ConcurrentHashMap<>();
+    private final Map<String, List<String>> footerGroups = new ConcurrentHashMap<>();
+    private final Map<UUID, PlayerData> cache = new ConcurrentHashMap<>();
+
+    private int animationTick = 0;
 
     public AnimationEngine(JavaPlugin plugin, TablistHandler handler) {
         this.plugin = plugin;
@@ -30,58 +36,64 @@ public class AnimationEngine {
         this.vanishRegistry = new VanishRegistry();
     }
 
-    public void setTemplates(List<String> header, List<String> footer) {
-        this.headerTemplate = header;
-        this.footerTemplate = footer;
-    }
-
-    public void registerAnimation(String id, List<String> frames) {
-        animations.put(id, frames);
-        currentFrames.put(id, 0);
+    public void setTemplates(String group, List<String> header, List<String> footer) {
+        headerGroups.put(group, header);
+        footerGroups.put(group, footer);
     }
 
     public void start() {
         int interval = plugin.getConfig().getInt("tablist.update_interval", 10);
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::updateAll, 0, interval);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::tick, 0, interval);
+    }
+
+    private void tick() {
+        animationTick++;
+        SortingRegistry sortingRegistry = com.omnitab.core.OmniTab.getInstance().getSortingRegistry();
+        
+        // 1. Prepare data for all online players (O(N))
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            PlayerData data = cache.computeIfAbsent(player.getUniqueId(), id -> new PlayerData(player));
+            
+            // Refresh metadata every 20 ticks
+            if (animationTick % 20 == 0) {
+                data.group = sortingRegistry.getGroup(player);
+                data.ping = getPing(player);
+                data.vanished = vanishRegistry.isVanished(player);
+            }
+
+            // Always update display strings (potential animations)
+            data.lastHeader = buildString(player, headerGroups.getOrDefault(data.getGroupName(), headerGroups.get("default")));
+            data.lastFooter = buildString(player, footerGroups.getOrDefault(data.getGroupName(), footerGroups.get("default")));
+            data.fullDisplayName = data.group.prefix + player.getName() + data.group.suffix;
+        }
+
+        // 2. Dispatch updates to viewers (O(N))
+        for (Player viewer : Bukkit.getOnlinePlayers()) {
+            PlayerData viewerData = cache.get(viewer.getUniqueId());
+            if (viewerData == null) continue;
+
+            // Send Header/Footer
+            handler.updateHeaderFooter(viewer, viewerData.lastHeader, viewerData.lastFooter);
+
+            // Update visible entries for the viewer (O(V) where V is visible players)
+            for (PlayerData targetData : cache.values()) {
+                Player target = Bukkit.getPlayer(targetData.uuid);
+                if (target == null || !target.isOnline()) {
+                    cache.remove(targetData.uuid);
+                    continue;
+                }
+
+                if (targetData.vanished && !viewer.hasPermission("omnitab.vanish.see")) continue;
+
+                handler.updatePlayerEntry(viewer, target, targetData.group.prefix, targetData.group.suffix, targetData.ping);
+            }
+        }
     }
 
     public void updateSingle(Player player) {
-        if (player == null || !player.isOnline()) return;
-        
-        // Skip update for vanished (will be handled by Join/Quit logic)
-        if (vanishRegistry.isVanished(player)) return;
-
-        String group = getPlayerGroup(player);
-        List<String> headers = headerGroups.getOrDefault(group, headerGroups.get("default"));
-        List<String> footers = footerGroups.getOrDefault(group, footerGroups.get("default"));
-
-        String header = buildString(player, headers);
-        String footer = buildString(player, footers);
-        handler.updateHeaderFooter(player, header, footer);
-    }
-
-    private String getPlayerGroup(Player player) {
-        return com.omnitab.core.OmniTab.getInstance().getPermissionHook().getPrimaryGroup(player);
-    }
-
-    private void updateAll() {
-        SortingRegistry sortingRegistry = com.omnitab.core.OmniTab.getInstance().getSortingRegistry();
-        
-        // Safe access to online players in async task
-        for (Player viewer : Bukkit.getOnlinePlayers()) {
-            if (viewer == null || !viewer.isOnline()) continue;
-            
-            // 1. Update Header/Footer for the viewer
-            updateSingle(viewer);
-            
-            // 2. Update player list entries (Prefixes/Ping) for the viewer
-            for (Player target : Bukkit.getOnlinePlayers()) {
-                if (target == null || !target.isOnline()) continue;
-                if (vanishRegistry.isVanished(target) && !viewer.hasPermission("omnitab.vanish.see")) continue;
-
-                SortingRegistry.Group group = sortingRegistry.getGroup(target);
-                handler.updatePlayerEntry(viewer, target, group.prefix, group.suffix, getPing(target));
-            }
+        PlayerData data = cache.get(player.getUniqueId());
+        if (data != null) {
+            handler.updateHeaderFooter(player, data.lastHeader, data.lastFooter);
         }
     }
 
@@ -95,11 +107,30 @@ public class AnimationEngine {
     }
 
     private String buildString(Player player, List<String> template) {
+        if (template == null || template.isEmpty()) return "";
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < template.size(); i++) {
             builder.append(template.get(i));
             if (i < template.size() - 1) builder.append("\n");
         }
         return PlaceholderRegistry.parse(player, builder.toString());
+    }
+
+    private static class PlayerData {
+        private final UUID uuid;
+        private SortingRegistry.Group group;
+        private int ping;
+        private boolean vanished;
+        private String lastHeader;
+        private String lastFooter;
+        private String fullDisplayName;
+
+        public PlayerData(Player player) {
+            this.uuid = player.getUniqueId();
+        }
+
+        public String getGroupName() {
+            return group != null ? group.name : "default";
+        }
     }
 }
