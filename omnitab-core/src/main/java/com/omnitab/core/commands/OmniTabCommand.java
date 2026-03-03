@@ -6,9 +6,17 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 
-public class OmniTabCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class OmniTabCommand implements CommandExecutor, TabCompleter {
+    
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         LanguageManager lm = OmniTab.getInstance().getLanguageManager();
@@ -78,6 +86,19 @@ public class OmniTabCommand implements CommandExecutor {
         }
 
         return true;
+    }
+
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        if (!sender.hasPermission("omnitab.admin")) return Collections.emptyList();
+        
+        if (args.length == 1) {
+            return Arrays.asList("reload", "debug", "version", "update", "help").stream()
+                    .filter(s -> s.startsWith(args[0].toLowerCase()))
+                    .collect(Collectors.toList());
+        }
+        
+        return new ArrayList<>();
     }
 
     private void sendHelp(CommandSender sender) {

@@ -71,10 +71,9 @@ public class SortingRegistry {
     }
 
     private void clearOldTeams(Scoreboard sb, Player player) {
-        for (Team oldTeam : sb.getTeams()) {
-            if (oldTeam.getName().startsWith("OT_") && oldTeam.hasEntry(player.getName())) {
-                oldTeam.removeEntry(player.getName());
-            }
+        Team team = sb.getEntryTeam(player.getName());
+        if (team != null && team.getName().startsWith("OT_")) {
+            team.removeEntry(player.getName());
         }
     }
 
