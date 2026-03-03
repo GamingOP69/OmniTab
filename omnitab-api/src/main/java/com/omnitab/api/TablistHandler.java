@@ -24,4 +24,9 @@ public interface TablistHandler {
      * Cleans up for a player.
      */
     void onPlayerQuit(@NotNull Player player);
+
+    /**
+     * Updates visibility of a target player for a viewer.
+     */
+    void updateVisibility(@NotNull Player viewer, @NotNull Player target, boolean visible);
 }

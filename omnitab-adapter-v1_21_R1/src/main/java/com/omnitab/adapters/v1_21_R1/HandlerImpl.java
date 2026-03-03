@@ -34,5 +34,12 @@ public class HandlerImpl implements TablistHandler {
     @Override
     public void onPlayerQuit(@NotNull Player player) {
         // No version-specific cleanup needed for 1.21.x yet
+    @Override
+    public void updateVisibility(@NotNull Player viewer, @NotNull Player target, boolean visible) {
+        if (visible) {
+            viewer.showPlayer(target);
+        } else {
+            viewer.hidePlayer(target);
+        }
     }
 }

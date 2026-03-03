@@ -92,6 +92,22 @@ public class HandlerImpl implements TablistHandler {
         // No version-specific cleanup needed for 1.8.8 yet
     }
 
+    @Override
+    public void updateVisibility(@NotNull Player viewer, @NotNull Player target, boolean visible) {
+        try {
+            Method getHandle = target.getClass().getMethod("getHandle");
+            Object handle = getHandle.invoke(target);
+            
+            Object action = enumPlayerInfoAction.getField(visible ? "ADD_PLAYER" : "REMOVE_PLAYER").get(null);
+            Constructor<?> constructor = packetPlayerInfo.getConstructor(enumPlayerInfoAction, Iterable.class);
+            Object packet = constructor.newInstance(action, java.util.Collections.singletonList(handle));
+            
+            sendPacket(viewer, packet);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void sendPacket(Player player, Object packet) {
         try {
             Method getHandle = player.getClass().getMethod("getHandle");

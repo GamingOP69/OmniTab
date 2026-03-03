@@ -69,6 +69,16 @@ public class AnimationEngine {
             data.lastHeader = buildString(player, headerGroups.getOrDefault(data.getGroupName(), headerGroups.get("default")));
             data.lastFooter = buildString(player, footerGroups.getOrDefault(data.getGroupName(), footerGroups.get("default")));
             data.fullDisplayName = data.group.prefix + player.getName() + data.group.suffix;
+
+            // Handle Vanish Visibility Toggles
+            if (data.vanished != data.lastVanished) {
+                for (Player viewer : Bukkit.getOnlinePlayers()) {
+                    if (!viewer.hasPermission("omnitab.vanish.see")) {
+                        handler.updateVisibility(viewer, player, !data.vanished);
+                    }
+                }
+                data.lastVanished = data.vanished;
+            }
         }
 
         // 2. Dispatch updates to viewers (O(N))
@@ -125,6 +135,7 @@ public class AnimationEngine {
         private SortingRegistry.Group group;
         private int ping;
         private boolean vanished;
+        private boolean lastVanished;
         private String lastHeader;
         private String lastFooter;
         private String fullDisplayName;
