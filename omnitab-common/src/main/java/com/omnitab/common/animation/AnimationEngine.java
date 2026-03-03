@@ -61,7 +61,15 @@ public class AnimationEngine {
         
         // 1. Prepare data for all online players (O(N))
         for (Player player : Bukkit.getOnlinePlayers()) {
-            PlayerData data = cache.computeIfAbsent(player.getUniqueId(), id -> new PlayerData(player));
+            PlayerData data = cache.get(player.getUniqueId());
+            if (data == null) {
+                data = new PlayerData(player);
+                data.group = sortingRegistry.getGroup(player);
+                data.ping = getPing(player);
+                data.vanished = vanishRegistry.isVanished(player);
+                data.lastVanished = data.vanished;
+                cache.put(player.getUniqueId(), data);
+            }
             
             // Refresh metadata every 20 ticks
             if (animationTick % 20 == 0) {
