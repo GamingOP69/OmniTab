@@ -1,34 +1,52 @@
-# 🥇 OmniTab
+# OmniTab: The Elite Universal Tablist System
 
-**OmniTab** is a high-performance, universal TAB plugin for Minecraft servers (Spigot & Paper) supporting versions from **1.7.10 to 1.21.x** with a single JAR.
+![OmniTab Logo](./assets/logo.png)
 
-## ✨ Features
-- **Universal Compatibility**: One JAR for all versions (1.7.10 → 1.21.x).
-- **Animated Header/Footer**: Dynamic and colorful tablist aesthetics.
-- **Smart Sorting**: Permission-based group sorting.
-- **Async Operations**: Zero impact on server TPS.
-- **Placeholder Support**: Built-in placeholders + PlaceholderAPI integration.
-- **RGB/Hex Support**: Modern color support for 1.16+ versions.
-- **bStats Integration**: Anonymous metrics for usage tracking.
+OmniTab is a high-performance, universal tablist solution for Minecraft servers (Spigot, Paper, and derivatives). It provides a professional, "elite" architecture designed to support versions from **1.8.8 to 1.21.x** using a single, optimized JAR file.
 
-## 🚀 Installation
-1. Download the latest `OmniTab.jar`.
-2. Drop it into your `plugins` folder.
-3. Restart your server.
-4. Configure your styles in `plugins/OmniTab/config.yml`.
+## Core Features
 
-## 🛠 Developer API
-OmniTab provides a clean API for other plugins to interact with the tablist.
+- **Universal Version Support**: Seamlessly supports 1.8.8 through 1.21.x without needing version-specific builds.
+- **Elite Styling & Gradients**: Support for dynamic RGB gradients and Hex colors (`<#RRGGBB>`) with intelligent legacy fallback for older clients.
+- **Staff Stealth & Vanish**: Integrated vanish detection with automated packet-level hide/show logic to protect staff privacy.
+- **Asynchronous Engine**: All string processing and animation ticking occurs off the main thread to ensure zero impact on server TPS.
+- **Smart Sorting Architecture**: Permission-based sorting hierarchy with weights ensures players appear exactly where they should.
+- **Placeholder Integration**: Extensive internal placeholders plus full integration with PlaceholderAPI.
+
+## Installation
+
+1. Download the latest release from the [GitHub Releases](https://github.com/GamingOP69/OmniTab/releases) page.
+2. Place the `omnitab-core-1.0.0.jar` into your server's `plugins` directory.
+3. Restart or start your server.
+4. Customize your experience in `plugins/OmniTab/config.yml`.
+
+## Commands & Permissions
+
+- `/omnitab reload` (Alias: `/ot reload`): Reloads all configurations, animations, and services.
+  - Permission: `omnitab.admin`
+
+## Developer API
+
+OmniTab offers a clean API for developers to extend its functionality or query tablist states.
+
 ```java
-TablistHandler handler = OmniTab.getInstance().getTablistHandler();
-// Custom logic here
+// Accessing the main instance
+OmniTab plugin = OmniTab.getInstance();
+
+// Interacting with the Tablist Handler
+TablistHandler handler = plugin.getTablistHandler();
 ```
 
-## 📜 License
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
+## Security & Performance
 
-## 🤝 Contributing
-Contributions are welcome! Please read our [Contribution Guidelines](CONTRIBUTING.md).
+OmniTab follows industry-standard security practices:
+- **Packet Sanitization**: All tablist packets are sanitized to prevent client-side exploits.
+- **Dirty Checking**: Packets are only dispatched when state changes occur, minimizing network overhead.
+- **Memory Safety**: Automated cache evacuation for disconnected players prevent memory leaks.
+
+## License
+
+OmniTab is released under the [MIT License](LICENSE).
 
 ---
-*Created with elite autonomous engineering by OmniTab Dev Team.*
+*Maintained by the OmniTab Development Team. Professional. Reliable. Elite.*
