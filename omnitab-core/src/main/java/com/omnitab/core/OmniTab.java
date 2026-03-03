@@ -2,6 +2,8 @@ package com.omnitab.core;
 
 import com.omnitab.api.TablistHandler;
 import com.omnitab.common.animation.AnimationEngine;
+import com.omnitab.common.hooks.PermissionHook;
+import com.omnitab.common.hooks.VanishRegistry;
 import com.omnitab.common.language.LanguageManager;
 import com.omnitab.common.sort.SortingRegistry;
 import com.omnitab.core.commands.OmniTabCommand;
@@ -25,6 +27,8 @@ public class OmniTab extends JavaPlugin implements Listener {
     private AnimationEngine animationEngine;
     private SortingRegistry sortingRegistry;
     private LanguageManager languageManager;
+    private PermissionHook permissionHook;
+    private VanishRegistry vanishRegistry;
 
     @Override
     public void onEnable() {
@@ -58,12 +62,30 @@ public class OmniTab extends JavaPlugin implements Listener {
             }
         }
 
+        // Initialize Hooks
+        this.permissionHook = new PermissionHook();
+        this.vanishRegistry = new VanishRegistry();
+
         // Initialize Animation Engine
         this.animationEngine = new AnimationEngine(this, tablistHandler);
-        this.animationEngine.setTemplates(
+        
+        // Load Default Templates
+        this.animationEngine.setTemplates("default", 
             getConfig().getStringList("tablist.header"),
             getConfig().getStringList("tablist.footer")
         );
+
+        // Load Group Templates
+        ConfigurationSection groupSection = getConfig().getConfigurationSection("tablist.groups");
+        if (groupSection != null) {
+            for (String group : groupSection.getKeys(false)) {
+                animationEngine.setTemplates(group,
+                    groupSection.getStringList(group + ".header"),
+                    groupSection.getStringList(group + ".footer")
+                );
+            }
+        }
+        
         this.animationEngine.start();
 
         // Register Commands & Events
@@ -124,4 +146,6 @@ public class OmniTab extends JavaPlugin implements Listener {
     public static OmniTab getInstance() { return instance; }
     public TablistHandler getTablistHandler() { return tablistHandler; }
     public LanguageManager getLanguageManager() { return languageManager; }
+    public PermissionHook getPermissionHook() { return permissionHook; }
+    public VanishRegistry getVanishRegistry() { return vanishRegistry; }
 }

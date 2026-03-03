@@ -2,6 +2,6 @@ name: OmniTab
 version: '${project.version}'
 main: com.omnitab.core.OmniTab
 api-version: 1.13
-authors: [Samra]
+authors: [GamingOP69]
 description: Universal Cross-Version TAB Plugin
-website: https://github.com/samra/OmniTab
+website: https://github.com/GamingOP69/OmniTab

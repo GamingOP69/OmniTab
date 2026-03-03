@@ -18,12 +18,14 @@ public class AnimationEngine {
     private final Map<String, Integer> currentFrames = new ConcurrentHashMap<>();
     private final TablistHandler handler;
 
-    private List<String> headerTemplate;
-    private List<String> footerTemplate;
+    private final Map<String, List<String>> headerGroups = new HashMap<>();
+    private final Map<String, List<String>> footerGroups = new HashMap<>();
+    private final VanishRegistry vanishRegistry;
 
     public AnimationEngine(JavaPlugin plugin, TablistHandler handler) {
         this.plugin = plugin;
         this.handler = handler;
+        this.vanishRegistry = new VanishRegistry();
     }
 
     public void setTemplates(List<String> header, List<String> footer) {
@@ -43,9 +45,21 @@ public class AnimationEngine {
 
     public void updateSingle(Player player) {
         if (player == null || !player.isOnline()) return;
-        String header = buildString(player, headerTemplate);
-        String footer = buildString(player, footerTemplate);
+        
+        // Skip update for vanished (will be handled by Join/Quit logic)
+        if (vanishRegistry.isVanished(player)) return;
+
+        String group = getPlayerGroup(player);
+        List<String> headers = headerGroups.getOrDefault(group, headerGroups.get("default"));
+        List<String> footers = footerGroups.getOrDefault(group, footerGroups.get("default"));
+
+        String header = buildString(player, headers);
+        String footer = buildString(player, footers);
         handler.updateHeaderFooter(player, header, footer);
+    }
+
+    private String getPlayerGroup(Player player) {
+        return com.omnitab.core.OmniTab.getInstance().getPermissionHook().getPrimaryGroup(player);
     }
 
     private void updateAll() {

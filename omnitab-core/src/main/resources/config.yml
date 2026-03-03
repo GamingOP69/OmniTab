@@ -14,6 +14,14 @@ tablist:
   footer:
     - "&bJoin our Discord: &fdiscord.gg/omnitab"
   
+  groups:
+    admin:
+      header:
+        - "&c&lSTAFF TABLIST"
+        - "&7You are in &cAdmin Mode"
+      footer:
+        - "&7TPS: &a%server_tps% &7| &7RAM: &f%server_ram%"
+  
   sorting:
     groups:
       admin:

@@ -11,6 +11,7 @@ import java.lang.reflect.Field;
 public class HandlerImpl implements TablistHandler {
 
     private Field footerField;
+    private Field playerInfoActionsField;
 
     public HandlerImpl() {
         try {
