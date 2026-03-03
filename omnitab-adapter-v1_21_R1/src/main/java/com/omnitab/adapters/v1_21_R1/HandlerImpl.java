@@ -24,5 +24,14 @@ public class HandlerImpl implements TablistHandler {
         // Modern approach: Paper/Spigot API for player list names
         // If they want packet level, we'd use reflection, but API is safer and works across 1.19+.
         target.setPlayerListName(prefix + target.getName() + suffix);
+        @Override
+    public void onPlayerJoin(@NotNull Player player) {
+        // No version-specific injection needed for 1.21.x yet
     }
+
+    @Override
+    public void onPlayerQuit(@NotNull Player player) {
+        // No version-specific cleanup needed for 1.21.x yet
+    }
+}
 }

@@ -66,6 +66,16 @@ public class HandlerImpl implements TablistHandler {
         }
     }
 
+    @Override
+    public void onPlayerJoin(@NotNull Player player) {
+        // No version-specific injection needed for 1.12.2 yet
+    }
+
+    @Override
+    public void onPlayerQuit(@NotNull Player player) {
+        // No version-specific cleanup needed for 1.12.2 yet
+    }
+
     private void setField(Object obj, String fieldName, Object value) throws Exception {
         Field field = obj.getClass().getDeclaredField(fieldName);
         field.setAccessible(true);

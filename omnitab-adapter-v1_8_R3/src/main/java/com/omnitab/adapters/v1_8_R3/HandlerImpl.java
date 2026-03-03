@@ -82,6 +82,16 @@ public class HandlerImpl implements TablistHandler {
         }
     }
 
+    @Override
+    public void onPlayerJoin(@NotNull Player player) {
+        // No version-specific injection needed for 1.8.8 yet
+    }
+
+    @Override
+    public void onPlayerQuit(@NotNull Player player) {
+        // No version-specific cleanup needed for 1.8.8 yet
+    }
+
     private void sendPacket(Player player, Object packet) {
         try {
             Method getHandle = player.getClass().getMethod("getHandle");
