@@ -37,12 +37,32 @@ public class OmniTabCommand implements CommandExecutor {
                 boolean currentDebug = OmniTab.getInstance().getConfig().getBoolean("settings.debug_mode", false);
                 OmniTab.getInstance().getConfig().set("settings.debug_mode", !currentDebug);
                 OmniTab.getInstance().saveConfig();
-                sender.sendMessage(prefix + "§7Debug mode is now " + (!currentDebug ? "§aEnabled" : "§cDisabled"));
+                sender.sendMessage(prefix + ChatColor.GRAY + "Debug mode is now " + (!currentDebug ? ChatColor.GREEN + "Enabled" : ChatColor.RED + "Disabled"));
                 break;
 
             case "version":
-                sender.sendMessage(prefix + "§7Running OmniTab §f" + OmniTab.getInstance().getDescription().getVersion());
-                sender.sendMessage(prefix + "§7Developed and Maintained by §6GamingOP");
+                sender.sendMessage(prefix + ChatColor.GRAY + "Running OmniTab " + ChatColor.WHITE + OmniTab.getInstance().getDescription().getVersion());
+                sender.sendMessage(prefix + ChatColor.GRAY + "Developed and Maintained by " + ChatColor.GOLD + "GamingOP");
+                break;
+
+            case "update":
+                if (!sender.hasPermission("omnitab.admin")) {
+                    sender.sendMessage(prefix + lm.getMessage("no_permission"));
+                    return true;
+                }
+                sender.sendMessage(prefix + ChatColor.GRAY + "Checking for updates...");
+                com.omnitab.core.utils.UpdateChecker checker = new com.omnitab.core.utils.UpdateChecker(OmniTab.getInstance(), 123456);
+                checker.check().thenAccept(latest -> {
+                    if (checker.isNewer(OmniTab.getInstance().getDescription().getVersion(), latest)) {
+                        sender.sendMessage(prefix + ChatColor.GREEN + "A new update is available: " + ChatColor.WHITE + latest);
+                        sender.sendMessage(prefix + ChatColor.GRAY + "Download at: " + ChatColor.AQUA + "spigotmc.org");
+                    } else {
+                        sender.sendMessage(prefix + ChatColor.GREEN + "You are running the latest version.");
+                    }
+                }).exceptionally(ex -> {
+                    sender.sendMessage(prefix + ChatColor.RED + "Failed to check for updates.");
+                    return null;
+                });
                 break;
 
             default:
@@ -54,14 +74,15 @@ public class OmniTabCommand implements CommandExecutor {
     }
 
     private void sendHelp(CommandSender sender) {
-        sender.sendMessage("§8§m----------------------------------------");
-        sender.sendMessage("§6§lOmniTab Universal §7v" + OmniTab.getInstance().getDescription().getVersion());
-        sender.sendMessage("§7Developed by §fGamingOP");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8&m----------------------------------------"));
+        sender.sendMessage(ChatColor.GOLD + "OmniTab Universal " + ChatColor.GRAY + "v" + OmniTab.getInstance().getDescription().getVersion());
+        sender.sendMessage(ChatColor.GRAY + "Developed by " + ChatColor.WHITE + "GamingOP");
         sender.sendMessage("");
-        sender.sendMessage("§e/omnitab reload §7- Reload configuration");
-        sender.sendMessage("§e/omnitab debug  §7- Toggle debug mode");
-        sender.sendMessage("§e/omnitab version §7- Show version info");
-        sender.sendMessage("§e/omnitab help    §7- Display this menu");
-        sender.sendMessage("§8§m----------------------------------------");
+        sender.sendMessage(ChatColor.YELLOW + "/omnitab reload " + ChatColor.GRAY + "- Reload configuration");
+        sender.sendMessage(ChatColor.YELLOW + "/omnitab debug  " + ChatColor.GRAY + "- Toggle debug mode");
+        sender.sendMessage(ChatColor.YELLOW + "/omnitab update " + ChatColor.GRAY + "- Check for updates");
+        sender.sendMessage(ChatColor.YELLOW + "/omnitab version " + ChatColor.GRAY + "- Show version info");
+        sender.sendMessage(ChatColor.YELLOW + "/omnitab help    " + ChatColor.GRAY + "- Display this menu");
+        sender.sendMessage(ChatColor.translateAlternateColorCodes('&', "&8&m----------------------------------------"));
     }
 }

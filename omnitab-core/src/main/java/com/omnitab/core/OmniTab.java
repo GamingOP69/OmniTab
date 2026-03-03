@@ -135,8 +135,8 @@ public class OmniTab extends JavaPlugin implements Listener {
             UpdateChecker checker = new UpdateChecker(this, 123456);
             checker.check().thenAccept(latest -> {
                 if (checker.isNewer(getDescription().getVersion(), latest)) {
-                    event.getPlayer().sendMessage("§8[§bOmniTab§8] §aA new update is available: §f" + latest);
-                    event.getPlayer().sendMessage("§7Update your plugin at spigotmc.org!");
+                    event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&8[&bOmniTab&8] &aA new update is available: &f" + latest));
+                    event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Update your plugin at spigotmc.org!"));
                 }
             });
         }
