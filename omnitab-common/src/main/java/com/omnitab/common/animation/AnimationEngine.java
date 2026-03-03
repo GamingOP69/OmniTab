@@ -38,7 +38,7 @@ public class AnimationEngine {
         this.handler = handler;
         this.sortingRegistry = sortingRegistry;
         this.permissionHook = permissionHook;
-        this.vanishedRegistry = new VanishRegistry();
+        this.vanishRegistry = new VanishRegistry();
     }
 
     public void setTemplates(String group, List<String> header, List<String> footer) {
