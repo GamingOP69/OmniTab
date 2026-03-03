@@ -149,12 +149,7 @@ public class AnimationEngine {
     }
 
     private int getPing(Player player) {
-        try {
-            Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-            return (int) entityPlayer.getClass().getField("ping").get(entityPlayer);
-        } catch (Exception e) {
-            return 0;
-        }
+        return com.omnitab.common.utils.PingUtil.getPing(player);
     }
 
     private String buildString(Player player, List<String> template) {

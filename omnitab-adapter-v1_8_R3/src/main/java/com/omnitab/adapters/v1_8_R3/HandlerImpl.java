@@ -64,19 +64,27 @@ public class HandlerImpl implements TablistHandler {
 
             Method getHandle = target.getClass().getMethod("getHandle");
             Object handle = getHandle.invoke(target);
-
-            // Construct UPDATE_DISPLAY_NAME info packet
-            Object action = enumPlayerInfoAction.getField("UPDATE_DISPLAY_NAME").get(null);
             
-            // PacketPlayOutPlayerInfo(Action, EntityPlayer...)
+            // 1. UPDATE_DISPLAY_NAME
+            Object actionDisplay = enumPlayerInfoAction.getField("UPDATE_DISPLAY_NAME").get(null);
             Constructor<?> constructor = packetPlayerInfo.getConstructor(enumPlayerInfoAction, Iterable.class);
-            Object packet = constructor.newInstance(action, java.util.Collections.singletonList(handle));
+            Object packetDisplay = constructor.newInstance(actionDisplay, java.util.Collections.singletonList(handle));
+            
+            // 2. UPDATE_LATENCY
+            // We need to set the ping field in the handle temporarily before creating the packet,
+            // or modify the PlayerInfoData inside the packet. Set handle.ping is easier.
+            Field pingField = handle.getClass().getField("ping");
+            int oldPing = pingField.getInt(handle);
+            pingField.set(handle, ping);
+            
+            Object actionLatency = enumPlayerInfoAction.getField("UPDATE_LATENCY").get(null);
+            Object packetLatency = constructor.newInstance(actionLatency, java.util.Collections.singletonList(handle));
+            
+            // Restore ping for the handle to avoid side-effects on other plugins
+            pingField.set(handle, oldPing);
 
-            // Modify the underlying PlayerInfoData list if needed, 
-            // but 1.8.8 constructor usually picks up the current display name of the handle.
-            // If it doesn't, we manually inject into 'b' field list.
-
-            sendPacket(viewer, packet);
+            sendPacket(viewer, packetDisplay);
+            sendPacket(viewer, packetLatency);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 public class PlaceholderRegistry {
 
-    private static final Pattern INTERNAL_PLACEHOLDER_PATTERN = Pattern.compile("%(online_players|max_players|server_version|player_name|player_ping|server_tps|server_ram)%");
+    private static final Pattern INTERNAL_PLACEHOLDER_PATTERN = Pattern.compile("%(online_players|max_players|server_version|plugin_version|player_name|player_ping|server_tps|server_ram)%");
 
     public static String parse(Player player, String text) {
         if (text == null) return "";
@@ -38,13 +38,13 @@ public class PlaceholderRegistry {
             case "online_players": return String.valueOf(Bukkit.getOnlinePlayers().size());
             case "max_players": return String.valueOf(Bukkit.getMaxPlayers());
             case "server_version": return Bukkit.getBukkitVersion();
-            case "player_name": return player.getName();
-            case "player_ping": 
+            case "plugin_version": 
                 try {
-                    Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
-                    return String.valueOf(entityPlayer.getClass().getField("ping").get(entityPlayer));
-                } catch (Exception e) { return "0"; }
-            case "server_tps": return "20.0"; // Requires NMS for real TPS, 20.0 is a safe default
+                    return Bukkit.getPluginManager().getPlugin("OmniTab").getDescription().getVersion();
+                } catch (Exception e) { return "1.0.0"; }
+            case "player_name": return player.getName();
+            case "player_ping": return String.valueOf(com.omnitab.common.utils.PingUtil.getPing(player));
+            case "server_tps": return "20.0"; 
             case "server_ram": 
                 long free = Runtime.getRuntime().freeMemory() / 1024 / 1024;
                 long total = Runtime.getRuntime().totalMemory() / 1024 / 1024;

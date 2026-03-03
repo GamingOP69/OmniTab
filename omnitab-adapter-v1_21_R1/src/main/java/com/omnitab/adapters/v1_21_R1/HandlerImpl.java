@@ -21,9 +21,15 @@ public class HandlerImpl implements TablistHandler {
 
     @Override
     public void updatePlayerEntry(@NotNull Player viewer, @NotNull Player target, String prefix, String suffix, int ping) {
-        // Modern approach: Paper/Spigot API for player list names
-        // If they want packet level, we'd use reflection, but API is safer and works across 1.19+.
         target.setPlayerListName(prefix + target.getName() + suffix);
+        
+        // Try to set latency if Paper API is available
+        try {
+            Method setPing = target.getClass().getMethod("setPing", int.class);
+            setPing.invoke(target, ping);
+        } catch (Exception ignored) {
+            // No direct API for ping in Spigot 1.21, usually managed by server
+        }
     }
 
     @Override

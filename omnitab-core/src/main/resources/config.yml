@@ -11,7 +11,7 @@ settings:
 tablist:
   update_interval: 10
   header:
-    - "&e&lOmniTab &7- &f%server_version%"
+    - "&e&lOmniTab &7- &f%plugin_version%"
     - " "
     - "&7Ping: &f%player_ping%ms &7| &7Server: &f%online_players%/%max_players%"
     - " "

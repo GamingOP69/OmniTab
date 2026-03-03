@@ -53,14 +53,23 @@ public class HandlerImpl implements TablistHandler {
             Method getHandle = target.getClass().getMethod("getHandle");
             Object handle = getHandle.invoke(target);
             
-            Object action = enumPlayerInfoAction.getField("UPDATE_DISPLAY_NAME").get(null);
+            // 1. UPDATE_DISPLAY_NAME
+            Object actionDisplay = enumPlayerInfoAction.getField("UPDATE_DISPLAY_NAME").get(null);
             Constructor<?> constructor = packetPlayerInfo.getConstructor(enumPlayerInfoAction, Iterable.class);
-            Object packet = constructor.newInstance(action, java.util.Collections.singletonList(handle));
+            Object packetDisplay = constructor.newInstance(actionDisplay, java.util.Collections.singletonList(handle));
             
-            // In 1.12, we often need to manually set the data's display name via reflection 
-            // because the handle's display name might not be set yet.
+            // 2. UPDATE_LATENCY
+            Field pingField = handle.getClass().getField("ping");
+            int oldPing = pingField.getInt(handle);
+            pingField.set(handle, ping);
             
-            sendPacket(viewer, packet);
+            Object actionLatency = enumPlayerInfoAction.getField("UPDATE_LATENCY").get(null);
+            Object packetLatency = constructor.newInstance(actionLatency, java.util.Collections.singletonList(handle));
+            
+            pingField.set(handle, oldPing);
+
+            sendPacket(viewer, packetDisplay);
+            sendPacket(viewer, packetLatency);
         } catch (Exception e) {
             e.printStackTrace();
         }
