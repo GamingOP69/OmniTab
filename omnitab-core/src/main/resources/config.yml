@@ -1,6 +1,7 @@
 # OmniTab Main Configuration
 
 settings:
+  language: "en"
   check_for_updates: true
   metrics_enabled: true
   debug_mode: false

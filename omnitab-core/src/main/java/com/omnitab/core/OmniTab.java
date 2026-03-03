@@ -2,6 +2,7 @@ package com.omnitab.core;
 
 import com.omnitab.api.TablistHandler;
 import com.omnitab.common.animation.AnimationEngine;
+import com.omnitab.common.language.LanguageManager;
 import com.omnitab.common.sort.SortingRegistry;
 import com.omnitab.core.commands.OmniTabCommand;
 import org.bukkit.configuration.ConfigurationSection;
@@ -23,11 +24,16 @@ public class OmniTab extends JavaPlugin implements Listener {
     private TablistHandler tablistHandler;
     private AnimationEngine animationEngine;
     private SortingRegistry sortingRegistry;
+    private LanguageManager languageManager;
 
     @Override
     public void onEnable() {
         instance = this;
         saveDefaultConfig();
+
+        // Initialize Language Manager
+        this.languageManager = new LanguageManager(this);
+        languageManager.loadLanguage(getConfig().getString("settings.language", "en"));
 
         // bStats Integration
         int pluginId = 29876;
@@ -117,4 +123,5 @@ public class OmniTab extends JavaPlugin implements Listener {
 
     public static OmniTab getInstance() { return instance; }
     public TablistHandler getTablistHandler() { return tablistHandler; }
+    public LanguageManager getLanguageManager() { return languageManager; }
 }
