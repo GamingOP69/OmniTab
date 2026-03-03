@@ -14,9 +14,6 @@ public class HandlerImpl implements TablistHandler {
 
     @Override
     public void updateHeaderFooter(@NotNull Player player, @NotNull String header, @NotNull String footer) {
-        Component headerComp = Component.Serializer.fromJson(header, player.getServer().getScoreboardManager().getMainScoreboard().getObjective("dummy").getScoreboard().getHandle().registryAccess()); // Simplified for example, normally use Adventure
-        Component footerComp = Component.Serializer.fromJson(footer, null); 
-
         ClientboundTabListPacket packet = new ClientboundTabListPacket(
                 Component.literal(header), 
                 Component.literal(footer)

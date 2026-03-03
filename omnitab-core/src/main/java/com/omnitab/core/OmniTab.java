@@ -2,20 +2,27 @@ package com.omnitab.core;
 
 import com.omnitab.api.TablistHandler;
 import com.omnitab.common.animation.AnimationEngine;
+import com.omnitab.common.sort.SortingRegistry;
 import com.omnitab.core.commands.OmniTabCommand;
+import org.bukkit.configuration.ConfigurationSection;
 import com.omnitab.core.utils.UpdateChecker;
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-public class OmniTab extends JavaPlugin {
+public class OmniTab extends JavaPlugin implements Listener {
 
     private static OmniTab instance;
     private TablistHandler tablistHandler;
     private AnimationEngine animationEngine;
+    private SortingRegistry sortingRegistry;
 
     @Override
     public void onEnable() {
@@ -34,6 +41,17 @@ public class OmniTab extends JavaPlugin {
             return;
         }
 
+        // Initialize Sorting Registry
+        this.sortingRegistry = new SortingRegistry();
+        ConfigurationSection groups = getConfig().getConfigurationSection("sorting.groups");
+        if (groups != null) {
+            for (String key : groups.getKeys(false)) {
+                int priority = groups.getInt(key + ".priority");
+                String permission = groups.getString(key + ".permission");
+                sortingRegistry.registerGroup(priority, permission);
+            }
+        }
+
         // Initialize Animation Engine
         this.animationEngine = new AnimationEngine(this, tablistHandler);
         this.animationEngine.setTemplates(
@@ -42,8 +60,9 @@ public class OmniTab extends JavaPlugin {
         );
         this.animationEngine.start();
 
-        // Register Commands
+        // Register Commands & Events
         getCommand("omnitab").setExecutor(new OmniTabCommand());
+        Bukkit.getPluginManager().registerEvents(this, this);
 
         // Update Checker
         new UpdateChecker(this, 123456).getVersion(version -> {
@@ -53,6 +72,19 @@ public class OmniTab extends JavaPlugin {
         });
 
         getLogger().info("OmniTab enabled on " + Bukkit.getVersion());
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event) {
+        sortingRegistry.applySorting(event.getPlayer());
+        Bukkit.getScheduler().runTaskLaterAsynchronously(this, () -> {
+            animationEngine.updateSingle(event.getPlayer());
+        }, 5L);
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        // Cleanup if needed
     }
 
     private boolean setupAdapter() {

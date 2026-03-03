@@ -6,9 +6,10 @@ settings:
   debug_mode: false
 
 tablist:
+  update_interval: 10
   header:
     - "&e&lOmniTab &7- &f%server_version%"
-    - "&7Online: &f%online_players%&7/&f%max_players%"
+    - "&7Ping: &f%player_ping%ms &7| &7Server: &f%online_players%/%max_players%"
   footer:
     - "&bJoin our Discord: &fdiscord.gg/omnitab"
   

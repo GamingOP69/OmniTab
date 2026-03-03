@@ -10,6 +10,20 @@ import java.lang.reflect.Field;
 
 public class HandlerImpl implements TablistHandler {
 
+    private Field headerField;
+    private Field footerField;
+
+    public HandlerImpl() {
+        try {
+            headerField = PacketPlayOutPlayerListHeaderFooter.class.getDeclaredField("a");
+            footerField = PacketPlayOutPlayerListHeaderFooter.class.getDeclaredField("b");
+            headerField.setAccessible(true);
+            footerField.setAccessible(true);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+    }
+
     @Override
     public void updateHeaderFooter(@NotNull Player player, @NotNull String header, @NotNull String footer) {
         IChatBaseComponent headerComp = IChatBaseComponent.ChatSerializer.a("{\"text\":\"" + header + "\"}");
@@ -18,13 +32,11 @@ public class HandlerImpl implements TablistHandler {
         PacketPlayOutPlayerListHeaderFooter packet = new PacketPlayOutPlayerListHeaderFooter();
         
         try {
-            Field headerField = packet.getClass().getDeclaredField("a");
-            Field footerField = packet.getClass().getDeclaredField("b");
-            headerField.setAccessible(true);
-            footerField.setAccessible(true);
-            headerField.set(packet, headerComp);
-            footerField.set(packet, footerComp);
-        } catch (Exception e) {
+            if (headerField != null && footerField != null) {
+                headerField.set(packet, headerComp);
+                footerField.set(packet, footerComp);
+            }
+        } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
 

@@ -37,13 +37,22 @@ public class AnimationEngine {
     }
 
     public void start() {
-        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            updateAll();
-        }, 0, 1); // Run every tick, internal logic handles timing if needed
+        int interval = plugin.getConfig().getInt("tablist.update_interval", 10);
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, this::updateAll, 0, interval);
+    }
+
+    public void updateSingle(Player player) {
+        if (player == null || !player.isOnline()) return;
+        String header = buildString(player, headerTemplate);
+        String footer = buildString(player, footerTemplate);
+        handler.updateHeaderFooter(player, header, footer);
     }
 
     private void updateAll() {
+        // Safe access to online players in async task
         for (Player player : Bukkit.getOnlinePlayers()) {
+            if (player == null || !player.isOnline()) continue;
+            
             String header = buildString(player, headerTemplate);
             String footer = buildString(player, footerTemplate);
             handler.updateHeaderFooter(player, header, footer);
