@@ -2,6 +2,8 @@
 
 settings:
   language: "en"
+  # Automatically check for and download updates on startup
+  auto_update: false
   check_for_updates: true
   metrics_enabled: true
   debug_mode: false

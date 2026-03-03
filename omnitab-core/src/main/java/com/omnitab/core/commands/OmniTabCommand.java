@@ -51,11 +51,18 @@ public class OmniTabCommand implements CommandExecutor {
                     return true;
                 }
                 sender.sendMessage(prefix + ChatColor.GRAY + "Checking for updates...");
-                com.omnitab.core.utils.UpdateChecker checker = new com.omnitab.core.utils.UpdateChecker(OmniTab.getInstance(), 123456);
+                com.omnitab.core.utils.UpdateChecker checker = new com.omnitab.core.utils.UpdateChecker(OmniTab.getInstance(), "GamingOP69/OmniTab");
                 checker.check().thenAccept(latest -> {
                     if (checker.isNewer(OmniTab.getInstance().getDescription().getVersion(), latest)) {
                         sender.sendMessage(prefix + ChatColor.GREEN + "A new update is available: " + ChatColor.WHITE + latest);
-                        sender.sendMessage(prefix + ChatColor.GRAY + "Download at: " + ChatColor.AQUA + "spigotmc.org");
+                        sender.sendMessage(prefix + ChatColor.YELLOW + "Downloading update...");
+                        checker.download(sender).thenAccept(success -> {
+                            if (success) {
+                                sender.sendMessage(prefix + ChatColor.GREEN + "Update downloaded! Finish by restarting the server.");
+                            } else {
+                                sender.sendMessage(prefix + ChatColor.RED + "Download failed. Check console for details.");
+                            }
+                        });
                     } else {
                         sender.sendMessage(prefix + ChatColor.GREEN + "You are running the latest version.");
                     }

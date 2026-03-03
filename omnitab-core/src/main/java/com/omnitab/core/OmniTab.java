@@ -131,12 +131,24 @@ public class OmniTab extends JavaPlugin implements Listener {
         }, 5L);
 
         // Notify admins of updates
-        if (event.getPlayer().hasPermission("omnitab.admin")) {
-            UpdateChecker checker = new UpdateChecker(this, 123456);
+        if (getConfig().getBoolean("settings.check_for_updates", true)) {
+            UpdateChecker checker = new UpdateChecker(this, "GamingOP69/OmniTab");
             checker.check().thenAccept(latest -> {
                 if (checker.isNewer(getDescription().getVersion(), latest)) {
-                    event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&8[&bOmniTab&8] &aA new update is available: &f" + latest));
-                    event.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&7Update your plugin at spigotmc.org!"));
+                    getLogger().info("A new version is available: " + latest);
+                    
+                    if (getConfig().getBoolean("settings.auto_update", false)) {
+                        getLogger().info("Auto-update enabled. Downloading latest version...");
+                        checker.download(Bukkit.getConsoleSender()).thenAccept(success -> {
+                            if (success) {
+                                getLogger().info("Update downloaded successfully to 'plugins/update/'. It will be applied on next restart.");
+                            } else {
+                                getLogger().warning("Failed to download the update.");
+                            }
+                        });
+                    } else {
+                        getLogger().info("Update manually via /omnitab update");
+                    }
                 }
             });
         }
